@@ -7,25 +7,26 @@
 <body>
 
 <h1>💳 Mua thẻ cào</h1>
-<p>Chọn loại thẻ và mệnh giá</p>
+<h3 id="balance">Số dư: ...</h3>
 
-<select>
-  <option>Viettel</option>
-  <option>Mobifone</option>
-  <option>Vinaphone</option>
+<select id="type">
+  <option value="10000">Viettel - 10.000đ</option>
+  <option value="20000">Viettel - 20.000đ</option>
+  <option value="50000">Viettel - 50.000đ</option>
 </select>
 
-<select>
-  <option>10.000đ</option>
-  <option>20.000đ</option>
-  <option>50.000đ</option>
-</select>
-
-<button>Mua ngay</button>
+<br><br>
+<button onclick="buy()">Mua ngay</button>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    updateDoc
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBK7H8ahk0iOdairoKTYuW6XpXBVTCqUhI",
@@ -38,13 +39,45 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  // 🔒 CHẶN NGƯỜI CHƯA LOGIN
-  onAuthStateChanged(auth, user => {
+  let currentUser;
+  let currentBalance = 0;
+
+  onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = "index.html";
+      return;
     }
+
+    currentUser = user;
+
+    const snap = await getDoc(doc(db, "users", user.uid));
+    currentBalance = snap.data().balance;
+
+    document.getElementById("balance").innerText =
+      "Số dư: " + currentBalance.toLocaleString() + "đ";
   });
+
+  window.buy = async function () {
+    const price = Number(document.getElementById("type").value);
+
+    if (currentBalance < price) {
+      alert("❌ Không đủ số dư");
+      return;
+    }
+
+    currentBalance -= price;
+
+    await updateDoc(doc(db, "users", currentUser.uid), {
+      balance: currentBalance
+    });
+
+    document.getElementById("balance").innerText =
+      "Số dư: " + currentBalance.toLocaleString() + "đ";
+
+    alert("✅ Mua thẻ thành công");
+  };
 </script>
 
 </body>
