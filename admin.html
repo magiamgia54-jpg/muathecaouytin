@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin nạp tiền</title>
+</head>
+<body>
+
+<h2>🔑 Admin nạp tiền</h2>
+
+<input id="uid" placeholder="UID người dùng">
+<br><br>
+
+<input id="amount" type="number" placeholder="Số tiền">
+<br><br>
+
+<button onclick="napTien()">Nạp tiền</button>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc, setDoc, increment } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "API_KEY_CỦA_BẠN",
+    authDomain: "PROJECT.firebaseapp.com",
+    projectId: "PROJECT_ID",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  window.napTien = async () => {
+    const uid = document.getElementById("uid").value;
+    const amount = Number(document.getElementById("amount").value);
+
+    if (!uid || amount <= 0) {
+      alert("Nhập UID và số tiền hợp lệ");
+      return;
+    }
+
+    const userRef = doc(db, "users", uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      await setDoc(userRef, { balance: amount });
+    } else {
+      await updateDoc(userRef, {
+        balance: increment(amount)
+      });
+    }
+
+    alert("✅ Nạp tiền thành công");
+  };
+</script>
+
+</body>
+</html>
