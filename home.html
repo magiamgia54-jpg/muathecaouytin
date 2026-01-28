@@ -1,49 +1,108 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Mua thẻ cào</title>
+<meta charset="UTF-8">
+<title>MuaThẻCaoUyTin</title>
+
+<style>
+body{
+  font-family:Arial,sans-serif;
+  background:#f4f6f8;
+  margin:0;
+}
+.container{
+  max-width:420px;
+  margin:30px auto;
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.1)
+}
+h2{text-align:center}
+.balance{
+  background:#e8f5e9;
+  padding:10px;
+  border-radius:6px;
+  text-align:center;
+  font-weight:bold;
+  margin-bottom:15px
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:15px
+}
+.card{
+  padding:12px;
+  border-radius:8px;
+  text-align:center;
+  font-weight:bold;
+  cursor:pointer;
+  border:2px solid transparent
+}
+.card.active{border-color:#000}
+.viettel{background:#e53935;color:#fff}
+.vina{background:#1976d2;color:#fff}
+.mobi{background:#43a047;color:#fff}
+.amount{background:#eee}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:6px;
+  background:#1e88e5;
+  color:#fff;
+  font-size:16px
+}
+.msg{text-align:center;font-weight:bold;margin-top:10px}
+.success{color:green}
+.error{color:red}
+</style>
 </head>
+
 <body>
+<div class="container">
 
-<h2>🛒 Mua thẻ cào</h2>
+<h2>🎮 MuaThẻCaoUyTin</h2>
 
-<p>Số dư: <b><span id="balance">0</span> đ</b></p>
+<div class="balance">
+  Số dư: <span id="balance">0</span> đ
+</div>
 
-<hr>
+<b>Nhà mạng</b>
+<div class="cards">
+  <div class="card viettel" onclick="chonMang('Viettel',this)">Viettel</div>
+  <div class="card vina" onclick="chonMang('Vinaphone',this)">Vinaphone</div>
+  <div class="card mobi" onclick="chonMang('Mobifone',this)">Mobifone</div>
+</div>
 
-<label>Nhà mạng:</label>
-<select id="network">
-  <option value="Viettel">Viettel</option>
-  <option value="Mobifone">Mobifone</option>
-  <option value="Vinaphone">Vinaphone</option>
-</select>
-
-<br><br>
-
-<label>Mệnh giá:</label>
-<select id="amount">
-  <option value="10000">10.000 đ</option>
-  <option value="20000">20.000 đ</option>
-  <option value="50000">50.000 đ</option>
-  <option value="100000">100.000 đ</option>
-</select>
-
-<br><br>
+<b>Mệnh giá</b>
+<div class="cards">
+  <div class="card amount" onclick="chonTien(10000,this)">10.000</div>
+  <div class="card amount" onclick="chonTien(20000,this)">20.000</div>
+  <div class="card amount" onclick="chonTien(50000,this)">50.000</div>
+  <div class="card amount" onclick="chonTien(100000,this)">100.000</div>
+</div>
 
 <button onclick="muaThe()">Mua thẻ</button>
+<p id="msg" class="msg"></p>
 
-<p id="msg"></p>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, increment, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getFirestore,doc,getDoc,updateDoc,increment,
+  collection,query,where,getDocs,addDoc,limit,serverTimestamp
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+/* 🔥 DÁN FIREBASE CONFIG CỦA BẠN */
 const firebaseConfig = {
-  apiKey: "API_KEY_CỦA_BẠN",
-  authDomain: "xxx.firebaseapp.com",
-  projectId: "xxx",
+  apiKey: "API_KEY",
+  authDomain: "PROJECT.firebaseapp.com",
+  projectId: "PROJECT_ID",
 };
 
 const app = initializeApp(firebaseConfig);
@@ -52,46 +111,81 @@ const db = getFirestore();
 
 let currentUser;
 let currentBalance = 0;
+let network = "";
+let amount = 0;
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    location.href = "index.html";
+window.chonMang = (m,el)=>{
+  network=m;
+  document.querySelectorAll(".viettel,.vina,.mobi").forEach(e=>e.classList.remove("active"));
+  el.classList.add("active");
+};
+
+window.chonTien = (t,el)=>{
+  amount=t;
+  document.querySelectorAll(".amount").forEach(e=>e.classList.remove("active"));
+  el.classList.add("active");
+};
+
+onAuthStateChanged(auth, async(user)=>{
+  if(!user){
+    alert("Chưa đăng nhập");
     return;
   }
-
-  currentUser = user;
-
-  const snap = await getDoc(doc(db, "users", user.uid));
-  currentBalance = snap.data().balance;
-  document.getElementById("balance").innerText = currentBalance;
+  currentUser=user;
+  const snap=await getDoc(doc(db,"users",user.uid));
+  currentBalance=snap.data().balance;
+  document.getElementById("balance").innerText=currentBalance;
 });
 
-window.muaThe = async () => {
-  const network = document.getElementById("network").value;
-  const amount = Number(document.getElementById("amount").value);
+window.muaThe = async()=>{
+  const msg=document.getElementById("msg");
 
-  if (currentBalance < amount) {
-    document.getElementById("msg").innerText = "❌ Không đủ tiền";
-    return;
+  if(!network||!amount){
+    msg.innerText="❌ Chọn nhà mạng và mệnh giá";
+    msg.className="msg error";return;
   }
 
-  // Trừ tiền
-  await updateDoc(doc(db, "users", currentUser.uid), {
-    balance: increment(-amount)
+  if(currentBalance<amount){
+    msg.innerText="❌ Không đủ tiền";
+    msg.className="msg error";return;
+  }
+
+  const q=query(
+    collection(db,"cards"),
+    where("network","==",network),
+    where("amount","==",amount),
+    where("used","==",false),
+    limit(1)
+  );
+
+  const snap=await getDocs(q);
+  if(snap.empty){
+    msg.innerText="❌ Hết thẻ";
+    msg.className="msg error";return;
+  }
+
+  const card=snap.docs[0];
+
+  await updateDoc(doc(db,"users",currentUser.uid),{
+    balance:increment(-amount)
   });
 
-  // Lưu lịch sử mua
-  await addDoc(collection(db, "orders"), {
-    uid: currentUser.uid,
+  await updateDoc(card.ref,{used:true});
+
+  await addDoc(collection(db,"orders"),{
+    uid:currentUser.uid,
     network,
     amount,
-    createdAt: serverTimestamp()
+    code:card.data().code,
+    serial:card.data().serial,
+    createdAt:serverTimestamp()
   });
 
-  currentBalance -= amount;
-  document.getElementById("balance").innerText = currentBalance;
+  currentBalance-=amount;
+  document.getElementById("balance").innerText=currentBalance;
 
-  document.getElementById("msg").innerText = "✅ Mua thẻ thành công";
+  msg.className="msg success";
+  msg.innerHTML=`✅ Thành công<br>Mã: <b>${card.data().code}</b><br>Serial: <b>${card.data().serial}</b>`;
 };
 </script>
 
