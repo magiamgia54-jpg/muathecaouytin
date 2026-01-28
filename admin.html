@@ -1,59 +1,96 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin nạp tiền</title>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+
+<style>
+body{
+  font-family:Arial,sans-serif;
+  background:#f2f2f2;
+}
+.box{
+  max-width:400px;
+  margin:40px auto;
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+h2{text-align:center}
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  font-size:15px;
+}
+button{
+  background:#e53935;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+}
+.msg{
+  margin-top:10px;
+  font-weight:bold;
+  text-align:center;
+}
+</style>
 </head>
+
 <body>
 
-<h2>🔑 Admin nạp tiền</h2>
+<div class="box">
+  <h2>👑 ADMIN</h2>
 
-<input id="uid" placeholder="UID người dùng">
-<br><br>
+  <input id="uid" placeholder="UID khách hàng">
+  <input id="money" type="number" placeholder="Số tiền cần nạp">
 
-<input id="amount" type="number" placeholder="Số tiền">
-<br><br>
+  <button onclick="nap()">Nạp tiền</button>
 
-<button onclick="napTien()">Nạp tiền</button>
+  <div id="msg" class="msg"></div>
+</div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, setDoc, increment } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore,doc,updateDoc,increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "API_KEY_CỦA_BẠN",
-    authDomain: "PROJECT.firebaseapp.com",
-    projectId: "PROJECT_ID",
-  };
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyBK7H8ahk0iOdairoKTYuW6XpXBVTCqUhI",
+  authDomain: "wed-mua-the-cao.firebaseapp.com",
+  projectId: "wed-mua-the-cao",
+  storageBucket: "wed-mua-the-cao.firebasestorage.app",
+  messagingSenderId: "893033343634",
+  appId: "1:893033343634:web:3627977a944a87ea60d44b"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const ADMIN_UID = "yvNHytzlbwOc3kYERIbyPH3GUup1";
 
-  window.napTien = async () => {
-    const uid = document.getElementById("uid").value;
-    const amount = Number(document.getElementById("amount").value);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
 
-    if (!uid || amount <= 0) {
-      alert("Nhập UID và số tiền hợp lệ");
-      return;
-    }
+onAuthStateChanged(auth,(u)=>{
+  if(!u || u.uid !== ADMIN_UID){
+    alert("Không có quyền admin");
+    location.href="index.html";
+  }
+});
 
-    const userRef = doc(db, "users", uid);
-    const snap = await getDoc(userRef);
-
-    if (!snap.exists()) {
-      await setDoc(userRef, { balance: amount });
-    } else {
-      await updateDoc(userRef, {
-        balance: increment(amount)
-      });
-    }
-
-    alert("✅ Nạp tiền thành công");
-  };
+window.nap = async()=>{
+  try{
+    await updateDoc(doc(db,"users",uid.value),{
+      balance: increment(Number(money.value))
+    });
+    msg.innerText="✅ Nạp tiền thành công";
+    msg.style.color="green";
+  }catch(e){
+    msg.innerText="❌ Lỗi nạp tiền";
+    msg.style.color="red";
+  }
+};
 </script>
 
 </body>
