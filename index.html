@@ -3,57 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Đăng ký / Đăng nhập</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-    }
-    button {
-      width: 48%;
-      padding: 10px;
-      margin-top: 10px;
-    }
-  </style>
 </head>
 <body>
 
-<div class="box">
-  <h2>Đăng ký / Đăng nhập</h2>
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Mật khẩu">
-  <div>
-    <button onclick="register()">Đăng ký</button>
-    <button onclick="login()">Đăng nhập</button>
-  </div>
-</div>
+<h2>Đăng ký / Đăng nhập</h2>
+
+<input id="email" type="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Mật khẩu"><br><br>
+
+<button onclick="register()">Đăng ký</button>
+<button onclick="login()">Đăng nhập</button>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import {
     getAuth,
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    onAuthStateChanged
+    signInWithEmailAndPassword
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  // 🔥 Firebase config (CỦA BẠN)
   const firebaseConfig = {
     apiKey: "AIzaSyBK7H8ahk0iOdairoKTYuW6XpXBVTCqUhI",
     authDomain: "wed-mua-the-cao.firebaseapp.com",
@@ -66,38 +34,28 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  // ✅ Đăng ký
   window.register = function () {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
-        alert("✅ Đăng ký thành công");
-        window.location.href = "home.html";
+        alert("Đăng ký thành công");
       })
       .catch(err => alert(err.message));
-  }
+  };
 
-  // ✅ Đăng nhập
   window.login = function () {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        alert("✅ Đăng nhập thành công");
-        window.location.href = "home.html";
+        // 👉 CHUYỂN SANG TRANG MUA THẺ
+        window.location.href = "muathe.html";
       })
-      .catch(err => alert(err.message));
-  }
-
-  // ✅ Chặn người chưa login
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      console.log("Đã đăng nhập:", user.email);
-    }
-  });
+      .catch(err => alert("Sai tài khoản hoặc mật khẩu"));
+  };
 </script>
 
 </body>
