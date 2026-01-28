@@ -2,65 +2,57 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Đăng ký / Đăng nhập</title>
 </head>
-
 <body>
-  <h2>Đăng ký / Đăng nhập</h2>
 
-  <input id="email" type="email" placeholder="Email"><br><br>
-  <input id="password" type="password" placeholder="Mật khẩu (>= 6 ký tự)"><br><br>
+<h2>Đăng ký / Đăng nhập</h2>
 
-  <button onclick="register()">Đăng ký</button>
-  <button onclick="login()">Đăng nhập</button>
+<input id="email" type="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Mật khẩu (>= 6 ký tự)"><br><br>
 
-  <!-- FIREBASE -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<button onclick="register()">Đăng ký</button>
+<button onclick="login()">Đăng nhập</button>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBK7H8ahk0iOdairoKTYuW6XpXBVTCqUh",
-      authDomain: "wed-mua-the-cao.firebaseapp.com",
-      projectId: "wed-mua-the-cao",
-      storageBucket: "wed-mua-the-cao.appspot.com",
-      messagingSenderId: "893033343634",
-      appId: "1:893033343634:web:3627977a944a87ea60d44b"
-    };
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  // ✅ firebaseConfig BẠN LẤY – ĐÚNG
+  const firebaseConfig = {
+    apiKey: "AIzaSyBK7H8ahk0iOdairoKTYuW6XpXBVTCqUhI",
+    authDomain: "wed-mua-the-cao.firebaseapp.com",
+    projectId: "wed-mua-the-cao",
+    storageBucket: "wed-mua-the-cao.firebasestorage.app",
+    messagingSenderId: "893033343634",
+    appId: "1:893033343634:web:3627977a944a87ea60d44b"
+  };
 
-    window.register = function () {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-      createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          alert("✅ Đăng ký thành công!");
-        })
-        .catch(error => {
-          alert("❌ Lỗi: " + error.message);
-        });
-    };
+  window.register = function () {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-    window.login = function () {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(() => alert("✅ Đăng ký thành công"))
+      .catch(err => alert("❌ " + err.message));
+  };
 
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          alert("✅ Đăng nhập thành công!");
-        })
-        .catch(error => {
-          alert("❌ Lỗi: " + error.message);
-        });
-    };
-  </script>
+  window.login = function () {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => alert("✅ Đăng nhập thành công"))
+      .catch(err => alert("❌ " + err.message));
+  };
+</script>
+
 </body>
 </html>
