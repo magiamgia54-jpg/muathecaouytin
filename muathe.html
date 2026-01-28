@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Mua thẻ</title>
+</head>
+<body>
+
+<h1>💳 Mua thẻ cào</h1>
+<p>Chọn loại thẻ và mệnh giá</p>
+
+<select>
+  <option>Viettel</option>
+  <option>Mobifone</option>
+  <option>Vinaphone</option>
+</select>
+
+<select>
+  <option>10.000đ</option>
+  <option>20.000đ</option>
+  <option>50.000đ</option>
+</select>
+
+<button>Mua ngay</button>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBK7H8ahk0iOdairoKTYuW6XpXBVTCqUhI",
+    authDomain: "wed-mua-the-cao.firebaseapp.com",
+    projectId: "wed-mua-the-cao",
+    storageBucket: "wed-mua-the-cao.firebasestorage.app",
+    messagingSenderId: "893033343634",
+    appId: "1:893033343634:web:3627977a944a87ea60d44b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // 🔒 CHẶN NGƯỜI CHƯA LOGIN
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      window.location.href = "index.html";
+    }
+  });
+</script>
+
+</body>
+</html>
